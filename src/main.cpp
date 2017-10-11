@@ -9,6 +9,7 @@
 #include "pages.h"
 #include "keys.h"
 
+#define MDNS_NAME "garage"
 #define BUTTON_DELAY 750 //Time in milliseconds that the relay is held HIGH
 
 //const int relayPin = D1; //Pin used for the relay
@@ -108,7 +109,7 @@ void setup() {
   };
 
   //Start MDNS
-  if(mdns.begin("esp8266", WiFi.localIP()))
+  if(mdns.begin(MDNS_NAME, WiFi.localIP()))
   {
     Serial.println("mdns started");
   }
