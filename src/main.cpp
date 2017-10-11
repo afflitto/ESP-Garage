@@ -11,6 +11,8 @@
 #include <ESP8266mDNS.h>
 #include <Hash.h>
 #include <WebSocketsServer.h>
+#include <ArduinoOTA.h>
+#include <WiFiUdp.h>
 #ifdef USE_THINGER
   #include <ThingerWifi.h>
 #endif
@@ -135,18 +137,36 @@ void setup() {
   server.on("/manifest.json", handleManifest);
   server.onNotFound(handleNotFound);
 
+  //ArduinoOTA Handlers
+  ArduinoOTA.onStart([]() {
+    digitalWrite(relayPin, LOW);
+    Serial.println("Starting OTA...");
+  });
+  ArduinoOTA.onEnd([]() {
+      Serial.println("End");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress * 100) / total);
+  });
+  ArduinoOTA.onError([](ota_error_t error){
+    Serial.println(error);
+  });
+
   //Begin networking
   server.begin();
   Serial.println("Web server started");
   ws.begin();
   ws.onEvent(webSocketEvent);
   Serial.println("Websocket server started");
+  ArduinoOTA.begin();
+  Serial.println("ArduinoOTA started");
 }
 
 void loop() {
-  //Update web server, web sockets, Thinger, and relay
+  //Update web server, web sockets, Thinger, ArduinoOTA, and relay
   ws.loop();
   server.handleClient();
+  ArduinoOTA.handle();
   updateRelay();
   #ifdef USE_THINGER
     thing.handle();
