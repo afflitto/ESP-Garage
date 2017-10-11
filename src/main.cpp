@@ -9,11 +9,12 @@
 #include "pages.h"
 #include "keys.h"
 
-#define MDNS_NAME "garage"
-#define BUTTON_DELAY 750 //Time in milliseconds that the relay is held HIGH
+//Config:
+#define MDNS_NAME "garage"          //MDNS name to connect to garage.local
+#define BUTTON_DELAY 750            //Time in milliseconds that the relay is held HIGH
+//const int relayPin = D1;          //Pin used for the relay
+const int relayPin = LED_BUILTIN;   //Set to LED_BUILTIN for now for debugging
 
-//const int relayPin = D1; //Pin used for the relay
-const int relayPin = LED_BUILTIN; //Set to LED_BUILTIN for now for debugging
 
 long relayStartTime = 0; //Used to keep track of how long the relay has been on
 
