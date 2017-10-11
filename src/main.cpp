@@ -5,7 +5,9 @@
 #include <ESP8266mDNS.h>
 #include <Hash.h>
 #include <WebSocketsServer.h>
+#include <ThingerWifi.h>
 #include "pages.h"
+#include "keys.h"
 
 #define BUTTON_DELAY 750
 
@@ -13,12 +15,11 @@ const int relayPin = LED_BUILTIN;
 
 long relayStartTime = 0;
 
-const char* ssid = "";
-const char* password = "";
 MDNSResponder mdns;
 
 ESP8266WebServer server(80);
 WebSocketsServer ws = WebSocketsServer(81);
+ThingerWifi thing(thingerUserName, thingerDeviceID, thingerDeviceCredential);
 
 void activateRelay()
 {
@@ -91,6 +92,10 @@ void setup() {
   Serial.println("Connected");
   Serial.println("IP: " + WiFi.localIP().toString());
 
+  thing["toggle"] << [](pson& in){
+    activateRelay();
+  };
+
   if(mdns.begin("esp8266", WiFi.localIP()))
   {
     Serial.println("mdns started");
@@ -112,6 +117,6 @@ void setup() {
 void loop() {
   ws.loop();
   server.handleClient();
-
+  thing.handle();
   updateRelay();
 }
