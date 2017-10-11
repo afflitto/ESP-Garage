@@ -125,6 +125,7 @@ void setup() {
   //Start MDNS
   if(mdns.begin(MDNS_NAME, WiFi.localIP()))
   {
+    mdns.addService("http", "tcp", 80);
     String mdnsString = MDNS_NAME;
     Serial.println("MDNS started on " + mdnsString + ".local");
   }
