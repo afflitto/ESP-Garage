@@ -1,3 +1,9 @@
+//Comment out the following line to disable Thinger.io integration
+//You can use Thinger to connect to IFTTT for Google Home/Alexa integration
+#define USE_THINGER
+//Uncomment the following line to enable Thinger debugging
+//#define _DEBUG_
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -5,9 +11,12 @@
 #include <ESP8266mDNS.h>
 #include <Hash.h>
 #include <WebSocketsServer.h>
-#include <ThingerWifi.h>
-#include "pages.h"
-#include "keys.h"
+#ifdef USE_THINGER
+  #include <ThingerWifi.h>
+#endif
+
+#include "pages.h"  //Strings containing the HTML pages
+#include "keys.h"   //WiFi and Thinger credentials
 
 //Config:
 #define MDNS_NAME "garage"          //MDNS name to connect to garage.local
@@ -22,7 +31,9 @@ long relayStartTime = 0; //Used to keep track of how long the relay has been on
 MDNSResponder mdns;
 ESP8266WebServer server(80);
 WebSocketsServer ws = WebSocketsServer(81);
-ThingerWifi thing(thingerUserName, thingerDeviceID, thingerDeviceCredential);
+#ifdef USE_THINGER
+  ThingerWifi thing(thingerUserName, thingerDeviceID, thingerDeviceCredential);
+#endif
 
 //Turns on the relay. Will turn off after BUTTON_DELAY ms
 void activateRelay()
@@ -50,17 +61,17 @@ void updateRelay()
 
 //URL Handlers
 void handleRoot() {
-  Serial.println("root");
+  Serial.println("Serving root webpage");
   server.send(200, "text/html", rootHTML);
 }
 
 void handleManifest() {
-  Serial.println("manifest");
+  Serial.println("Serving manifest.json");
   server.send(200, "text/json", manifest);
 }
 
 void handleNotFound() {
-  Serial.println("not found");
+  Serial.println("404: not found: " + server.uri());
   server.send(404, "text/plain", "404: not found");
 }
 
@@ -68,16 +79,16 @@ void handleNotFound() {
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
   switch(type) {
     case WStype_DISCONNECTED:
-      Serial.println("ws disconnected");
+      Serial.println("Websocket disconnected");
       break;
     case WStype_CONNECTED:
-      Serial.println("ws connected");
+      Serial.println("Websocket connected");
       break;
     case WStype_TEXT:
-      Serial.printf("ws recieved: %s\n", payload);
+      Serial.printf("Websocket recieved: %s\n", payload);
       if(payload[0] == 't')
       {
-        Serial.println("correct message");
+        Serial.println("Activating relay");
         activateRelay();
       }
       break;
@@ -100,19 +111,22 @@ void setup() {
     Serial.print(".");
   }
 
-  Serial.println("Connected");
+  Serial.println("Connected to WiFi");
   Serial.println("IP: " + WiFi.localIP().toString());
 
   //Add Thinger.io input resource
   //Will call activateRelay() when a web request is sent to Thinger.io
-  thing["toggle"] << [](pson& in){
-    activateRelay();
-  };
+  #ifdef USE_THINGER
+    thing["toggle"] << [](pson& in){
+      activateRelay();
+    };
+  #endif
 
   //Start MDNS
   if(mdns.begin(MDNS_NAME, WiFi.localIP()))
   {
-    Serial.println("mdns started");
+    String mdnsString = MDNS_NAME;
+    Serial.println("MDNS started on " + mdnsString + ".local");
   }
 
   //Add URL handlers
@@ -122,16 +136,18 @@ void setup() {
 
   //Begin networking
   server.begin();
-  Serial.println("web server started");
+  Serial.println("Web server started");
   ws.begin();
   ws.onEvent(webSocketEvent);
-  Serial.println("websocket server started");
+  Serial.println("Websocket server started");
 }
 
 void loop() {
   //Update web server, web sockets, Thinger, and relay
   ws.loop();
   server.handleClient();
-  thing.handle();
   updateRelay();
+  #ifdef USE_THINGER
+    thing.handle();
+  #endif
 }
