@@ -35,9 +35,9 @@ String rootHTML = R"=====(
       </div>
 
       <script>
-
+        var ws;
         $(document).ready(function() {
-          var ws = new WebSocket('ws://'+location.hostname+':81', ['arduino']);
+          ws = new WebSocket('ws://'+location.hostname+':81', ['arduino']);
           ws.onopen = function () {
             setConnected(true);
           };
@@ -50,6 +50,10 @@ String rootHTML = R"=====(
           ws.onmessage = function(message) {
             console.log(message.data);
           };
+        });
+
+        $("#togglebutton").click(function () {
+          ws.send("toggle");
         });
 
         function setConnected(isConnected) {
