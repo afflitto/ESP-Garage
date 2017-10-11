@@ -7,12 +7,40 @@
 #include <WebSocketsServer.h>
 #include "pages.h"
 
+#define BUTTON_DELAY 750
+
+const int relayPin = LED_BUILTIN;
+
+long relayStartTime = 0;
+
 const char* ssid = "";
 const char* password = "";
 MDNSResponder mdns;
 
 ESP8266WebServer server(80);
 WebSocketsServer ws = WebSocketsServer(81);
+
+void activateRelay()
+{
+  relayStartTime = millis();
+
+  if(relayStartTime + BUTTON_DELAY < BUTTON_DELAY)
+  {
+    Serial.println("overflow");//overflow
+  }
+}
+
+void updateRelay()
+{
+  if(millis() > relayStartTime + BUTTON_DELAY)
+  {
+    digitalWrite(relayPin, LOW);
+  }
+  else
+  {
+    digitalWrite(relayPin, HIGH);
+  }
+}
 
 void handleRoot() {
   Serial.println("root");
@@ -34,11 +62,18 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       break;
     case WStype_TEXT:
       Serial.printf("ws recieved: %s\n", payload);
+      if(payload[0] == 't')
+      {
+        Serial.println("correct message");
+        activateRelay();
+      }
       break;
   }
 }
 
 void setup() {
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW);
   Serial.begin(115200);
   WiFi.begin(ssid, password);
 
@@ -71,4 +106,6 @@ void setup() {
 void loop() {
   ws.loop();
   server.handleClient();
+
+  updateRelay();
 }
