@@ -25,7 +25,12 @@ String rootHTML = R"=====(
         <hr>
         <div class="row">
           <div class="col-md-4 col-md-offset-4">
-            <a href="#" id="togglebutton" class="btn btn-block btn-lg btn-danger disabled">Open/close</a>
+            <button id="togglebutton" class="btn btn-block btn-lg btn-danger disabled">Open/close</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 col-md-offset-4">
+            <button id="refreshbutton" class="btn btn-block btn-lg" style="margin-top: 10px">Refresh</button>
           </div>
         </div>
       </div>
@@ -39,23 +44,17 @@ String rootHTML = R"=====(
       <script>
         var ws;
         $(document).ready(function() {
-          ws = new WebSocket('ws://'+location.hostname+':81', ['arduino']);
-          ws.onopen = function () {
-            setConnected(true);
-          };
-          ws.onclose = function(message) {
-            setConnected(false);
-          };
-          ws.onerror = function(error) {
-            setConnected(false);
-          };
-          ws.onmessage = function(message) {
-            console.log(message.data);
-          };
+          connectWebSocket();
         });
 
         $("#togglebutton").click(function () {
           ws.send("t");
+        });
+
+        $("#refreshbutton").click(function () {
+          setConnected(false);
+          ws.close();
+          connectWebSocket();
         });
 
         function setConnected(isConnected) {
@@ -69,6 +68,22 @@ String rootHTML = R"=====(
             $("#togglebutton").addClass("disabled");
             $("#status").text("Disconnected");
           }
+        }
+
+        function connectWebSocket() {
+          ws = new WebSocket('ws://'+location.hostname+':81', ['arduino']);
+          ws.onopen = function () {
+            setConnected(true);
+          };
+          ws.onclose = function(message) {
+            setConnected(false);
+          };
+          ws.onerror = function(error) {
+            setConnected(false);
+          };
+          ws.onmessage = function(message) {
+            console.log(message.data);
+          };
         }
       </script>
     </body>
