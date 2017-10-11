@@ -5,6 +5,7 @@ String rootHTML = R"=====(
     <link rel='manifest' href='/manifest.json'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <head>
       <title>Garage Door Opener</title>
       <style>
