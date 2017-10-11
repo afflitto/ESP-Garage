@@ -2,6 +2,7 @@ String rootHTML = R"=====(
   <!DOCTYPE HTML>
   <html>
     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+    <link rel='manifest' href='/manifest.json'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <head>
@@ -53,7 +54,7 @@ String rootHTML = R"=====(
         });
 
         $("#togglebutton").click(function () {
-          ws.send("toggle");
+          ws.send("t");
         });
 
         function setConnected(isConnected) {
@@ -71,4 +72,13 @@ String rootHTML = R"=====(
       </script>
     </body>
   </html>
+)=====";
+
+
+String manifest = R"=====(
+  {
+    "name": "Garage Door Opener",
+    "short_name": "Garage Door",
+    "display": "standalone"
+  }
 )=====";

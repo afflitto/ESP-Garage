@@ -47,6 +47,11 @@ void handleRoot() {
   server.send(200, "text/html", rootHTML);
 }
 
+void handleManifest() {
+  Serial.println("manifest");
+  server.send(200, "text/json", manifest);
+}
+
 void handleNotFound() {
   Serial.println("not found");
   server.send(404, "text/plain", "404: not found");
@@ -92,6 +97,7 @@ void setup() {
   }
 
   server.on("/", handleRoot);
+  server.on("/manifest.json", handleManifest);
 
   server.onNotFound(handleNotFound);
 
