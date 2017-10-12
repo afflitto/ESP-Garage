@@ -28,6 +28,7 @@ const int relayPin = LED_BUILTIN;   //Set to LED_BUILTIN for now for debugging
 
 
 long relayStartTime = 0; //Used to keep track of how long the relay has been on
+bool enableRelay = false; //disable relay during OTA
 
 //Device Networking
 MDNSResponder mdns;
@@ -40,11 +41,13 @@ WebSocketsServer ws = WebSocketsServer(81);
 //Turns on the relay. Will turn off after BUTTON_DELAY ms
 void activateRelay()
 {
+  enableRelay = true;
+
   relayStartTime = millis();
 
   if(relayStartTime + BUTTON_DELAY < BUTTON_DELAY)
   {
-    Serial.println("overflow");//overflow
+    Serial.println("overflow");//overflow, might need to fix later
   }
 }
 
@@ -54,8 +57,9 @@ void updateRelay()
   if(millis() > relayStartTime + BUTTON_DELAY)
   {
     digitalWrite(relayPin, LOW);
+    enableRelay = false;
   }
-  else
+  else if(enableRelay)
   {
     digitalWrite(relayPin, HIGH);
   }
