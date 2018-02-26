@@ -124,7 +124,9 @@ void setup() {
   //Will call activateRelay() when a web request is sent to Thinger.io
   #ifdef USE_THINGER
     thing["toggle"] << [](pson& in){
-      activateRelay();
+      if(in){
+        activateRelay();
+      }
     };
   #endif
 
