@@ -68,7 +68,22 @@ void updateRelay()
 //URL Handlers
 void handleRoot() {
   Serial.println("Serving root webpage");
-  server.send(200, "text/html", rootHTML);
+  if(server.method() == HTTP_GET) //HTTP GET request
+  {
+    server.send(200, "text/html", rootHTML);
+  }
+  else //HTTP POST request
+  {
+    if(server.hasArg("toggle") && server.arg("toggle") == "true")
+    {
+      activateRelay();
+      server.send(200, "text/plain", "Recieved toggle command");
+    }
+    else //Bad/unknown arguement
+    {
+      server.send(400, "text/plain", "Bad arguement");
+    }
+  }
 }
 
 void handleManifest() {
