@@ -131,6 +131,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+  WiFi.mode(WIFI_STA);
 
   Serial.println("Connected to WiFi");
   Serial.println("IP: " + WiFi.localIP().toString());
