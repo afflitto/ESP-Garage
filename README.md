@@ -2,7 +2,9 @@
 
 ESP-Garage is a simple garage door opener using ESP8266.
 
-The ESP8266 hosts a webpage with a button that when clicked will open or close your garage door. The ESP needs to be connected to the garage door opener via a relay or some other switching mechanism.
+The ESP8266 hosts a webpage with a button that when clicked will open or close your garage door. The ESP needs to be connected to the garage door opener via a relay or some other switching mechanism. Most garage door openers will open when the switch terminals are shorted, so I used a relay with the normally open connection wired to the switch terminals.
+
+The relay can be activated from the button on the ESP's webpage, from a POST request with the parameter `toggle=true`, or through Thinger.io if enabled.
 
 ### How to install / configure
 This project is built using PlatformIO. You will need the WebSockets and (optionally) Thinger.io libraries that can be installed from the PlatformIO library manager. Once you have the libraries installed, rename *keys.h.template* to *keys.h* and fill in your WiFi credentials as well as the Thinger credentials if you are using it. If you are not using Thinger, comment out the third line in *main.cpp* to disable the library.
